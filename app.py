@@ -1,5 +1,4 @@
 import streamlit as st
-import pandas as pd
 from google.oauth2 import service_account
 from google.cloud import bigquery
 
@@ -8,8 +7,16 @@ st.title("📊 Data Terkini dari BigQuery")
 
 # 1. Setup Kredensial
 try:
-    # Menggunakan file creds.json yang ada di folder yang sama
-    credentials = service_account.Credentials.from_service_account_file('creds.json')
+    # Membaca kredensial dari Streamlit Secrets (untuk cloud)
+    # atau dari file lokal (untuk testing)
+    if "gcp_service_account" in st.secrets:
+        # Jika berjalan di Cloud
+        info = st.secrets["gcp_service_account"]
+        credentials = service_account.Credentials.from_service_account_info(info)
+    else:
+        # Jika berjalan lokal
+        credentials = service_account.Credentials.from_service_account_file('creds.json')
+    
     client = bigquery.Client(credentials=credentials, project=credentials.project_id)
     # Menulis Query (Contoh menggunakan public data Google)
     query = """
