@@ -22,9 +22,18 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# --- SETUP BIGQUERY CLIENT ---
+
 try:
-    credentials = service_account.Credentials.from_service_account_file('creds.json')
+    # Membaca kredensial dari Streamlit Secrets (untuk cloud)
+    # atau dari file lokal (untuk testing)
+    if "gcp_service_account" in st.secrets:
+        # Jika berjalan di Cloud
+        info = st.secrets["gcp_service_account"]
+        credentials = service_account.Credentials.from_service_account_info(info)
+    else:
+        # Jika berjalan lokal
+        credentials = service_account.Credentials.from_service_account_file('creds.json')
+    
     client = bigquery.Client(credentials=credentials, project=credentials.project_id)
 
     # Fungsi untuk menjalankan query
